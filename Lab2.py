@@ -131,9 +131,14 @@ a=1, b=2, c=1, d=3):
     Solve a single ODE using the Dormand Prince 8th order adaptive RK
     method with dense output (using Scipy's `solve_ivp` function).
 
+<<<<<<< Updated upstream
     Arguments are the same as `euler`:  Given a function representing the first derivative of f, an
     initial condiition f0 and a timestep, dt, solve for f using the RK method.
  
+=======
+    Arguments are the same as `euler`: Given a function representing the first derivative of f, an
+    initial condiition f0 and a timestep, dt, solve for f using the RK method.
+>>>>>>> Stashed changes
 
     Parameters
     ----------
