@@ -188,7 +188,7 @@ def plot_kanger(xmax=100, tmax=1825, dx=0.1, dt=0.2):
 
 def plot_profile(xmax=100, tmax=1825, dx=0.1, dt=0.2):
     '''
-    Plotting the seasonal temprature profile.
+    Plotting the seasonal temprature profile for Kangerlussuaq.
     Parameters:
     ===========
     xmax: int
@@ -242,7 +242,7 @@ def plot_profile(xmax=100, tmax=1825, dx=0.1, dt=0.2):
 
 def plot_profile_05(xmax=100, tmax=1825, dx=0.1, dt=0.2):
     '''
-    Plotting the seasonal temprature profile.
+    Plotting the seasonal temprature profile with a temperature shift of 0.5°C.
     Parameters:
     ===========
     xmax: int
@@ -344,7 +344,7 @@ def plot_profile_1(xmax=100, tmax=1825, dx=0.1, dt=0.2):
 
 def plot_profile_3(xmax=100, tmax=1825, dx=0.1, dt=0.2):
     '''
-    Plotting the seasonal temprature profile with a temperature of 3°C.
+    Plotting the seasonal temprature profile with a temperature shift of 3°C.
     Parameters:
     ===========
     xmax: int
