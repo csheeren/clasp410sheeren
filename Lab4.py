@@ -140,7 +140,7 @@ def temp_kanger(t, t_kanger):
     return temperature
 
 #Appling heat diffusion model to the validation problem:
-x, time, heat = heatdiff(1, 0.2, 0.04, 0.0002)
+x, time, heat = heatdiff(1, 0.2, 0.2, 0.02)
 print(heat)
 #Plotting the heatmap for our solution to the validation problem:
 plt.clf()
