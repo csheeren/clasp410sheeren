@@ -9,9 +9,10 @@ Figure 1: run Lab4.py
 Figure 2: plot_kanger()
 Figure 3: plot_profile(tmax=14600)
 Figure 4: plot_kanger(tmax=14600)
-Figure 5: plot_profile_05(tmax=14600)
-          plot_profile_1(tmax=14600)
-          plot_profile_3(tmax=14600)
+Figure 5: plot_profile(tmax=14600, kanger_cc=0.5)
+          plot_profile(tmax=14600, kanger_cc=1)
+          plot_profile(tmax=14600, kanger_cc=3)
+
 
 '''
 
@@ -113,12 +114,7 @@ def heatdiff(xmax, tmax, dx, dt, c2=1, debug=False, kanger=False, kanger_cc=0):
 # Kangerlussuaq average temperature:
 t_kanger = np.array([-19.7, -21.0, -17, -8.4, 2.3, 8.4,
 10.7, 8.5, 3.1, -6.0, -12.0, -16.9])
-t_kanger_05 = np.array([-19.7, -21.0, -17, -8.4, 2.3, 8.4,
-10.7, 8.5, 3.1, -6.0, -12.0, -16.9]) + 0.5
-t_kanger_1 = np.array([-19.7, -21.0, -17, -8.4, 2.3, 8.4,
-10.7, 8.5, 3.1, -6.0, -12.0, -16.9]) + 1
-t_kanger_3 = np.array([-19.7, -21.0, -17, -8.4, 2.3, 8.4,
-10.7, 8.5, 3.1, -6.0, -12.0, -16.9]) + 3
+
 def temp_kanger(t, t_kanger):
     '''
     For an array of times in days, return timeseries of temperature for
@@ -152,7 +148,7 @@ plt.tight_layout()
 plt.colorbar(label='Temperature (°C)')
 plt.show()
 
-def plot_kanger(xmax=100, tmax=1825, dx=0.1, dt=0.2):
+def plot_kanger(xmax=100, tmax=1825, dx=0.1, dt=0.2, kanger_cc=0):
     '''
     Plotting the space-time heat map for Kangerlussuaq, Greenland.
     Parameters:
@@ -167,8 +163,10 @@ def plot_kanger(xmax=100, tmax=1825, dx=0.1, dt=0.2):
     dt: int
         The change in time step in seconds by default, measured in days
         when the model is applied to Greenland.
+    kanger_cc: float, default=0
+        temperature shift applied to the kanger curve
     '''
-    position, time, temp = heatdiff(xmax, tmax, dx, dt, kanger=True)
+    position, time, temp = heatdiff(xmax, tmax, dx, dt, kanger=True, kanger_cc=kanger_cc)
     print(temp)
     print(position)
     print(time)
@@ -177,7 +175,7 @@ def plot_kanger(xmax=100, tmax=1825, dx=0.1, dt=0.2):
     #Only plotting every ten points in order to conserve computer memory:
     plt.pcolor((time/365)[::10], position[::10], temp[::10, ::10], cmap='seismic', vmin=-25, vmax=25)
     plt.gca().invert_yaxis()  # This will invert the y-axis
-    plt.title("Ground Temperature: Kangerlussuaq, Greenland")
+    plt.title(f'Ground Temperature: Kangerlussuaq, Greenland (Temp shift={kanger_cc}C)')
     plt.xlabel('Time (Years)')
     plt.ylabel('Depth (m)')
     plt.tight_layout()
@@ -186,7 +184,7 @@ def plot_kanger(xmax=100, tmax=1825, dx=0.1, dt=0.2):
 
     return
 
-def plot_profile(xmax=100, tmax=1825, dx=0.1, dt=0.2):
+def plot_profile(xmax=100, tmax=1825, dx=0.1, dt=0.2, kanger_cc=0):
     '''
     Plotting the seasonal temprature profile for Kangerlussuaq.
     Parameters:
@@ -201,8 +199,10 @@ def plot_profile(xmax=100, tmax=1825, dx=0.1, dt=0.2):
     dt: int
         The change in time step in seconds by default, measured in days
         when the model is applied to Greenland.
+    kanger_cc: float, default = 0
+        temperature shift applied to the kanger curve
     '''
-    position, time, temp = heatdiff(xmax, tmax, dx, dt, kanger=True)
+    position, time, temp = heatdiff(xmax, tmax, dx, dt, kanger=True, kanger_cc=kanger_cc)
     
     # Set indexing for the final year of results:
     loc = int(-365/dt) # Final 365 days of the result.
@@ -232,164 +232,7 @@ def plot_profile(xmax=100, tmax=1825, dx=0.1, dt=0.2):
     plt.gca().invert_yaxis()  # This will invert the y-axis
     plt.xlabel('Temperature (°C)')
     plt.ylabel('Depth (m)')
-    plt.title('Ground Temperature: Kangerlussuaq')
+    plt.title(f'Ground Temperature: Kangerlussuaq (Temp shift={kanger_cc}C)')
     plt.show()
 
     return
-
-
-#Steady state is reached after approximately 40 years or 14600 days.
-
-def plot_profile_05(xmax=100, tmax=1825, dx=0.1, dt=0.2):
-    '''
-    Plotting the seasonal temprature profile with a temperature shift of 0.5°C.
-    Parameters:
-    ===========
-    xmax: int
-        The maximum value of the ground depth in meters.
-    tmax: int
-        The maximum time value in seconds by default, measured in days 
-        when the model is applied to Greenland.
-    dx: int
-        The change in ground depth in m.
-    dt: int
-        The change in time step in seconds by default, measured in days
-        when the model is applied to Greenland.
-    '''
-
-    position_05, time_05, temp_05 = heatdiff(xmax, tmax, dx, dt, kanger=True, kanger_cc=0.5)
-    
-    # Set indexing for the final year of results:
-    loc = int(-365/dt) # Final 365 days of the result.
-    # Extract the minimum and maximum values over the final year:
-    winter_05 = temp_05[:, loc:].min(axis=1)
-    summer_05 = temp_05[:, loc:].max(axis=1)
-    #Determining the depth of the active layer:
-    summer_active_05 = np.abs(summer_05[position_05 <= 10])
-    summer_permafrost_05 = np.abs(summer_05[position_05 > 10])
-    active_layer_index_05 = np.argmin(summer_active_05)
-    active_layer_05 = position_05[position_05 <= 10][active_layer_index_05]
-    #Determing the depth of the permafrost layer:
-    permafrost_layer_index_05 = np.argmin(summer_permafrost_05)
-    permafrost_layer_05 = position_05[position_05 > 10][permafrost_layer_index_05]
-    print(active_layer_05)
-    print(permafrost_layer_05)
-    # Create a temperature profile plot:
-    plt.clf()
-    plt.plot(winter_05, position_05, label='Winter')
-    plt.plot(summer_05, position_05, label='Summer', color='red', linestyle='--')
-
-    plt.legend(loc="lower left")
-    plt.grid(True)  # Adds a default grid
-    plt.xlim(-8,6)
-    plt.ylim(0,70)
-    plt.gca().invert_yaxis()  # This will invert the y-axis
-    plt.xlabel('Temperature (°C)')
-    plt.ylabel('Depth (m)')
-    plt.title('Ground Temperature: Kangerlussuaq with 0.5°C Shift')
-    plt.show()
-
-    return
-
-def plot_profile_1(xmax=100, tmax=1825, dx=0.1, dt=0.2):
-    '''
-    Plotting the seasonal temprature profile with a temperature shift of 1°C.
-    Parameters:
-    ===========
-    xmax: int
-        The maximum value of the ground depth in meters.
-    tmax: int
-        The maximum time value in seconds by default, measured in days 
-        when the model is applied to Greenland.
-    dx: int
-        The change in ground depth in m.
-    dt: int
-        The change in time step in seconds by default, measured in days
-        when the model is applied to Greenland.
-    '''
-
-    position_1, time_1, temp_1 = heatdiff(xmax, tmax, dx, dt, kanger=True, kanger_cc=1)
-    
-    # Set indexing for the final year of results:
-    loc = int(-365/dt) # Final 365 days of the result.
-    # Extract the minimum and maximum values over the final year:
-    winter_1 = temp_1[:, loc:].min(axis=1)
-    summer_1 = temp_1[:, loc:].max(axis=1)
-    #Determining the depth of the active layer:
-    summer_active_1 = np.abs(summer_1[position_1 <= 10])
-    summer_permafrost_1 = np.abs(summer_1[position_1 > 10])
-    active_layer_index_1 = np.argmin(summer_active_1)
-    active_layer_1 = position_1[position_1<= 10][active_layer_index_1]
-    #Determing the depth of the permafrost layer:
-    permafrost_layer_index_1 = np.argmin(summer_permafrost_1)
-    permafrost_layer_1 = position_1[position_1 > 10][permafrost_layer_index_1]
-    print(active_layer_1)
-    print(permafrost_layer_1)
-    # Create a temperature profile plot:
-    plt.clf()
-    plt.plot(winter_1, position_1, label='Winter')
-    plt.plot(summer_1, position_1, label='Summer', color='red', linestyle='--')
-
-    plt.legend(loc="lower left")
-    plt.grid(True)  # Adds a default grid
-    plt.xlim(-8,6)
-    plt.ylim(0,70)
-    plt.gca().invert_yaxis()  # This will invert the y-axis
-    plt.xlabel('Temperature (°C)')
-    plt.ylabel('Depth (m)')
-    plt.title('Ground Temperature: Kangerlussuaq with 1°C Shift')
-    plt.show()
-
-    return
-
-def plot_profile_3(xmax=100, tmax=1825, dx=0.1, dt=0.2):
-    '''
-    Plotting the seasonal temprature profile with a temperature shift of 3°C.
-    Parameters:
-    ===========
-    xmax: int
-        The maximum value of the ground depth in meters.
-    tmax: int
-        The maximum time value in seconds by default, measured in days 
-        when the model is applied to Greenland.
-    dx: int
-        The change in ground depth in m.
-    dt: int
-        The change in time step in seconds by default, measured in days
-        when the model is applied to Greenland.
-    '''
-
-    position_3, time_3, temp_3 = heatdiff(xmax, tmax, dx, dt, kanger=True, kanger_cc=3)
-    
-    # Set indexing for the final year of results:
-    loc = int(-365/dt) # Final 365 days of the result.
-    # Extract the minimum and maximum values over the final year:
-    winter_3 = temp_3[:, loc:].min(axis=1)
-    summer_3 = temp_3[:, loc:].max(axis=1)
-    #Determining the depth of the active layer:
-    summer_active_3 = np.abs(summer_3[position_3 <= 10])
-    summer_permafrost_3 = np.abs(summer_3[position_3 > 10])
-    active_layer_index_3 = np.argmin(summer_active_3)
-    active_layer_3 = position_3[position_3<= 10][active_layer_index_3]
-    #Determing the depth of the permafrost layer:
-    permafrost_layer_index_3 = np.argmin(summer_permafrost_3)
-    permafrost_layer_3 = position_3[position_3 > 10][permafrost_layer_index_3]
-    print(active_layer_3)
-    print(permafrost_layer_3)
-    # Create a temperature profile plot:
-    plt.clf()
-    plt.plot(winter_3, position_3, label='Winter')
-    plt.plot(summer_3, position_3, label='Summer', color='red', linestyle='--')
-
-    plt.legend(loc="lower left")
-    plt.grid(True)  # Adds a default grid
-    plt.xlim(-8,6)
-    plt.ylim(0,70)
-    plt.gca().invert_yaxis()  # This will invert the y-axis
-    plt.xlabel('Temperature (°C)')
-    plt.ylabel('Depth (m)')
-    plt.title('Ground Temperature: Kangerlussuaq with 3°C Shift')
-    plt.show()
-
-    return
-
